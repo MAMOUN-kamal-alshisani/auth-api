@@ -1,12 +1,20 @@
 
-"use strict";
-require("dotenv").config();
-const server = require("./src/server");
-const { db }=require('./src/models/index')
-db.sync()
-.then(()=>{
-            server.start(process.env.PORT || 3002);
+'use strict';
 
-         })
-           .catch(console.error); 
-           
+
+const { start } = require('./src/server')
+require('dotenv').config()
+
+const port = process.env.PORT
+
+start(port || 3400)
+
+
+
+const { db } = require('./src/models/index');
+//the port should be from the .evn file
+db.sync()
+    .then(() => {
+        server.start(3000);
+    })
+    .catch(console.error);

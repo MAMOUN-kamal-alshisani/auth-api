@@ -1,23 +1,30 @@
+
 'use strict';
 
-const express = require("express");
-const logger = require("./middleware/logger");
-const UserRouter = require("./routes/user");
+const express = require('express');
+const app = express()
 
-const app = express();
-app.use(express.json());
-app.use(logger);
-app.use(UserRouter);
+app.use(express.json())
 
-
-module.exports={
-server: app,
-start: port=>{
-
-app.listen(port, ()=>{console.log(`server is listening on port ${port}`);})
+const err500 = require('./errorHandlers/500')
+const err404 = require('./errorHandlers/404')
 
 
+const router = require('./routes/user')
+app.use(router)
+
+
+
+app.use('*',err404);
+app.use(err500)
+
+
+function start(port) {
+    app.listen(port, () => console.log(`Server started on port ${port}`));
 }
 
-}
 
+module.exports = {
+    app,
+    start
+}

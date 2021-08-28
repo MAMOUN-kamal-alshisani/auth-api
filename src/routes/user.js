@@ -1,99 +1,62 @@
-const express=require('express');
-const base64 = require('base-64');
-const bcrypt = require('bcrypt');
-const router=express.Router();
-const { users }=require('../models/index');
+'use strict';
 
+const express = require('express')
+const router = express.Router();
+const {Users} = require('../models/index');
+router.use(express.json())
 
-router.get('/signin', signin);
-router.post('/signup',signup);
-router.get('/users', getusers);
-router.put('/update', updateUser);
-router.delete('/delete', deleteUser);
+const bearer=require('../middleware/bearer')
+const basic=require('../middleware/basic')
+const asl=require('../middleware/acl')
 
+function signUp(req,res){
+    console.log(req)
 
-// async function create(req, res) {
-//     let UserInfo = req.headers.authorization;
-//     let basicHeaderParts = UserInfo.split(' ');  // ['Basic', 'aGVtYToxMjM0']
-//     let encodedString = basicHeaderParts.pop();  //aGVtYToxMjM0
-//     let decodedString = base64.decode(encodedString); // "username:password"
-//     let [userName, userPassword] = decodedString.split(':'); // username, password
-  
-//     try {
-        
-//         let hashedPassword = await bcrypt.hash(userPassword, 10);
-      
-//         const userRecord = await User.create(
-//             {
-//                 userName: userName,
-//                 userPassword: hashedPassword
-//             }
-//             );
-//             res.status(200).json(userRecord );
-//         } catch (e) { res.status(403).send("Error In Creating User"); }  
-//     }
-
-
-async function signup(req,res){
-
-let userdata=req.headers.authorization;
-console.log(userdata);
-let encoded=userdata.split(" ")
-let encodedcredit=encoded.pop();
-let dencodedCredittentials =base64.decode(encodedcredit)
-console.log(encodedcredit);
-let [username, password]=dencodedCredittentials.split(" ");
-
-
-try{
-let hashedpassword =await bcrypt.hash(password, 10)
-const userRecord = await user.create({username:username , password:hashedpassword});
-res.status(201).json(userRecord);
-
-} catch(error){res.status(403).send('cant create user')}
+    Users.create(req.body)
+    .then(user => res.status(201).send(user))
+    .catch(err => res.status(400).send(err))
 }
+async function readFun(req,res){
+    let allUsers = await Users.findAll();
+    res.status(200).json(allUsers);
 
-async function signin(req,res){
 
-    let userdata=req.headers.authorization;
-    // console.log(userdata);
-    let encoded=userdata.split(" ");
-    let encodedcredit=encoded.pop();
-    let dencodedCredittentials =base64.decode(encodedcredit)
-    // console.log(decodedCreditentials);
-    let [username, password]=dencodedCredittentials.split(':');
+
+};
+
+
+function createFun(req,res){
+
+    res.send('Creation accepted')
+
     
-    
-    
-    try{
-    let userRecord =await users.signin(username);
-    const Valid = await bcrypt.compare(password, userRecord.password);
-    if(valid){
-    res.status(201).json(userRecord);}
-    else{throw new Error('invalid password')}
-    } catch(error){res.status(403).send('invalid name')}
+};
+
+
+
+
+async function updateFun(req,res){
+    // let id = parseInt(req.params.id);    
+    // let UserData = req.body;
+    // let UserInformation = await Users.update(UserData, id);    
+    res.status(200).send('You have a Permission to update');
 }
 
-async function getusers(req,res){
-
-    let allusers = await Users.getAll();
-    res.status(200).json(allusers);
-
+function signIn(req,res){
+    res.status(200).send(req.user);
 }
 
 
-async function updateUser(req, res) {
-    let id = parseInt(req.params.id);
-    let Userdata= req.body;
+router.get('/', (req, res) => {
+    res.status(200).send('welcome ');
+});
 
-    let TheUser = await TheUser.update(Userdata, id);
-    res.status(200).json(TheUser);
-}
+router.post('/signIn', basic(Users) ,signIn)
+router.post('/signUp', signUp)
+router.get('/read', bearer(Users),asl("read"),readFun)
+router.put('/update', bearer(Users),asl("update"),updateFun)
+router.put('/create', bearer(Users),asl("write"),createFun)
 
-async function deleteUser(req, res) {
-    let id = parseInt(req.params.id);
 
-    await User.delete(id);
-}
 
-module.exports=router;
+module.exports = router
