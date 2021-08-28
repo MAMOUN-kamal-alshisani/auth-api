@@ -11,9 +11,9 @@
 
 * [GitHub Repo Link](https://github.com/MAMOUN-kamal-alshisani/auth-api)
 
-* [Pull Request](https://github.com/MAMOUN-kamal-alshisani/bearer-auth/pull/1)
+* [Pull Request](https://github.com/MAMOUN-kamal-alshisani/auth-api/pull/1)
 
-* [Heroku Link](https://bearerauth1.herokuapp.com/) 
+* [Heroku Link](https://api-auth-mine.herokuapp.com/signUp) 
 
 
 ##### Setup
